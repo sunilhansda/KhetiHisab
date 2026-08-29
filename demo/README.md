@@ -1141,39 +1141,34 @@ The database should either contain the complete payment operation or none of it.
 
 The final design is intentionally simple:
 
-+-------------+
-|  CUSTOMER   |
-+-------------+
-|
-| 1:N
-v
-+-------------------+
-| CULTIVATION_JOB   |
-+-------------------+
-^
-|
-| N:1
-|
-+-------------+
-|   DRIVER    |
-+-------------+
+Customer
+│
+├── 1 : N ── CultivationJob
+│                 │
+│                 ├── N : 1 ── Driver
+│                 │
+│                 └── 1 : N ── PaymentAllocation
+│                                      │
+└── 1 : N ── Payment ──────────────────┘
 
+The payment scenario becomes:
 
-+-------------+
-|   PAYMENT   |
-+-------------+
-|
-| 1:N
-v
-+----------------------+
-| PAYMENT_ALLOCATION   |
-+----------------------+
-|
-| N:1
-v
-+-------------------+
-| CULTIVATION_JOB   |
-+-------------------+
+Ramesh
+│
+├── Job 101 → ₹2,000
+├── Job 102 → ₹4,000
+└── Job 103 → ₹1,000
+Total = ₹7,000
+
+Payment #1 = ₹3,000
+│
+└── PaymentAllocation
+├── Job 101 → ₹2,000
+└── Job 102 → ₹1,000
+
+So you can calculate the outstanding amount as:
+
+Job Due = Job Total Amount - SUM(PaymentAllocation Amount)
 
 Core principle
 
