@@ -4,11 +4,17 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "customer")
+@Table(
+        name = "customer",
+        indexes = {
+                @Index(
+                        name = "idx_customer_location_code",
+                        columnList = "location_code"
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,18 +33,22 @@ public class Customer {
     @Column(length = 20)
     private String phone;
 
+    @Column(
+            name = "location_code",
+            nullable = false,
+            length = 20
+    )
+    private String locationCode;
+
+    @Column(length = 500)
     private String address;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean active = true;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @OneToMany(mappedBy = "customer")
-    @Builder.Default
-    private List<CultivationJob> cultivationJobs = new ArrayList<>();
-
-    @OneToMany(mappedBy = "customer")
-    @Builder.Default
-    private List<Payment> payments = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
