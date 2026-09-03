@@ -42,4 +42,16 @@ public class GlobalExceptionHandler {
                         message
                 ));
     }
+
+    @ExceptionHandler(DriverNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDriverNotFound(
+            DriverNotFoundException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(
+                        "DRIVER_NOT_FOUND",
+                        exception.getMessage()
+                ));
+    }
 }
