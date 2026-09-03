@@ -1,16 +1,31 @@
 package com.example.demo.entity;
 
+import com.example.demo.enums.JobStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "cultivation_job")
+@Table(
+        name = "cultivation_job",
+        indexes = {
+                @Index(
+                        name = "idx_job_customer",
+                        columnList = "customer_id"
+                ),
+                @Index(
+                        name = "idx_job_driver",
+                        columnList = "driver_id"
+                ),
+                @Index(
+                        name = "idx_job_date",
+                        columnList = "job_date"
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,36 +46,22 @@ public class CultivationJob {
     @JoinColumn(name = "driver_id", nullable = false)
     private Driver driver;
 
-    @Column(name = "work_type", nullable = false, length = 50)
-    private String workType;
+    @Column(name = "job_date", nullable = false)
+    private LocalDate jobDate;
 
-    @Column(name = "work_date", nullable = false)
-    private LocalDate workDate;
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal amount;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal area;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    @Builder.Default
+    private JobStatus status = JobStatus.PENDING;
 
-    @Column(name = "area_unit", length = 20)
-    private String areaUnit;
-
-    @Column(precision = 12, scale = 2)
-    private BigDecimal rate;
-
-    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
-    private BigDecimal totalAmount;
-
-    private String location;
-
-    private String description;
-
+    @Column(length = 500)
     private String notes;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @OneToMany(mappedBy = "job")
-    @Builder.Default
-    private List<PaymentAllocation> paymentAllocations = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

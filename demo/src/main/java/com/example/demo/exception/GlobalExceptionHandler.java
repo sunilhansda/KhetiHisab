@@ -7,6 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -53,5 +55,19 @@ public class GlobalExceptionHandler {
                         "DRIVER_NOT_FOUND",
                         exception.getMessage()
                 ));
+    }
+
+    @ExceptionHandler(JobAmountModificationNotAllowedException.class)
+    public ResponseEntity<ErrorResponse> handleJobAmountModification(
+            JobAmountModificationNotAllowedException ex) {
+
+        ErrorResponse response = new ErrorResponse(
+                "JOB_AMOUNT_CANNOT_BE_MODIFIED",
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
     }
 }
