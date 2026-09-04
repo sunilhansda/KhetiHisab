@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.job.CreateCultivationJobRequest;
 import com.example.demo.dto.job.CultivationJobResponse;
 import com.example.demo.dto.job.UpdateCultivationJobRequest;
+import com.example.demo.dto.payment.JobBalanceResponse;
 import com.example.demo.enums.JobStatus;
 import com.example.demo.service.CultivationJobService;
 import jakarta.validation.Valid;
@@ -109,5 +110,14 @@ public class CultivationJobController {
         cultivationJobService.updateJobStatus(jobId, status);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{jobId}/balance")
+    public ResponseEntity<JobBalanceResponse> getJobBalance(
+            @PathVariable Long jobId) {
+
+        return ResponseEntity.ok(
+                cultivationJobService.getJobBalance(jobId)
+        );
     }
 }

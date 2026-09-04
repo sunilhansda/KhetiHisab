@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.dto.job.CreateCultivationJobRequest;
 import com.example.demo.dto.job.CultivationJobResponse;
 import com.example.demo.dto.job.UpdateCultivationJobRequest;
+import com.example.demo.dto.payment.JobBalanceResponse;
 import com.example.demo.entity.CultivationJob;
 import com.example.demo.entity.Customer;
 import com.example.demo.entity.Driver;
@@ -24,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Service
@@ -187,6 +189,28 @@ public class CultivationJobServiceImpl
                 job.getStatus(),
                 job.getNotes(),
                 job.getCreatedAt()
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public JobBalanceResponse getJobBalance(Long jobId) {
+
+        CultivationJob job = cultivationJobRepository.findById(jobId)
+                .orElseThrow(() ->
+                        new CultivationJobNotFoundException(jobId));
+
+        BigDecimal paidAmount =
+                paymentAllocationRepository.findTotalPaidForJob(jobId);
+
+        BigDecimal dueAmount =
+                job.getAmount().subtract(paidAmount);
+
+        return new JobBalanceResponse(
+                job.getJobId(),
+                job.getAmount(),
+                paidAmount,
+                dueAmount
         );
     }
 }

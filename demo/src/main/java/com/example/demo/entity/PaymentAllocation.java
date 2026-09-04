@@ -9,10 +9,14 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
         name = "payment_allocation",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_payment_job",
-                        columnNames = {"payment_id", "job_id"}
+        indexes = {
+                @Index(
+                        name = "idx_allocation_payment",
+                        columnList = "payment_id"
+                ),
+                @Index(
+                        name = "idx_allocation_job",
+                        columnList = "job_id"
                 )
         }
 )
@@ -29,17 +33,30 @@ public class PaymentAllocation {
     private Long allocationId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "payment_id", nullable = false)
+    @JoinColumn(
+            name = "payment_id",
+            nullable = false
+    )
     private Payment payment;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "job_id", nullable = false)
+    @JoinColumn(
+            name = "job_id",
+            nullable = false
+    )
     private CultivationJob job;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(
+            nullable = false,
+            precision = 12,
+            scale = 2
+    )
     private BigDecimal amount;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(
+            name = "created_at",
+            nullable = false
+    )
     private LocalDateTime createdAt;
 
     @PrePersist

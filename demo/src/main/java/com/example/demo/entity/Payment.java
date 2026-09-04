@@ -1,16 +1,27 @@
 package com.example.demo.entity;
 
+import com.example.demo.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "payment")
+@Table(
+        name = "payment",
+        indexes = {
+                @Index(
+                        name = "idx_payment_customer",
+                        columnList = "customer_id"
+                ),
+                @Index(
+                        name = "idx_payment_date",
+                        columnList = "payment_date"
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,29 +35,41 @@ public class Payment {
     private Long paymentId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(
+            name = "customer_id",
+            nullable = false
+    )
     private Customer customer;
 
-    @Column(name = "payment_date", nullable = false)
+    @Column(
+            name = "payment_date",
+            nullable = false
+    )
     private LocalDate paymentDate;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(
+            nullable = false,
+            precision = 12,
+            scale = 2
+    )
     private BigDecimal amount;
 
-    @Column(name = "payment_method", length = 20)
-    private String paymentMethod;
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "payment_method",
+            nullable = false,
+            length = 30
+    )
+    private PaymentMethod paymentMethod;
 
-    @Column(name = "transaction_reference", length = 100)
-    private String transactionReference;
-
+    @Column(length = 500)
     private String notes;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(
+            name = "created_at",
+            nullable = false
+    )
     private LocalDateTime createdAt;
-
-    @OneToMany(mappedBy = "payment")
-    @Builder.Default
-    private List<PaymentAllocation> allocations = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

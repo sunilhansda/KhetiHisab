@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.job.CreateCultivationJobRequest;
 import com.example.demo.dto.job.CultivationJobResponse;
 import com.example.demo.dto.job.UpdateCultivationJobRequest;
+import com.example.demo.dto.payment.JobBalanceResponse;
 import com.example.demo.enums.JobStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,4 +38,6 @@ public interface CultivationJobService {
             Long jobId,
             JobStatus status
     );
+
+    JobBalanceResponse getJobBalance(Long jobId);
 }

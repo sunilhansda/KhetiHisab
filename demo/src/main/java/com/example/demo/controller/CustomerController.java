@@ -1,9 +1,12 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.customer.CreateCustomerRequest;
+import com.example.demo.dto.customer.CustomerDuesResponse;
 import com.example.demo.dto.customer.CustomerResponse;
 import com.example.demo.dto.customer.UpdateCustomerRequest;
+import com.example.demo.dto.payment.CustomerBalanceResponse;
 import com.example.demo.service.CustomerService;
+import com.example.demo.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final PaymentService paymentService;
 
     @PostMapping
     public ResponseEntity<CustomerResponse> createCustomer(
@@ -81,5 +85,23 @@ public class CustomerController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{customerId}/balance")
+    public ResponseEntity<CustomerBalanceResponse> getCustomerBalance(
+            @PathVariable Long customerId) {
+
+        return ResponseEntity.ok(
+                paymentService.getCustomerBalance(customerId)
+        );
+    }
+
+    @GetMapping("/{customerId}/dues")
+    public ResponseEntity<CustomerDuesResponse> getCustomerDues(
+            @PathVariable Long customerId) {
+
+        return ResponseEntity.ok(
+                customerService.getCustomerDues(customerId)
+        );
     }
 }
