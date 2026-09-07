@@ -1,8 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.driver.CreateDriverRequest;
-import com.example.demo.dto.driver.DriverResponse;
-import com.example.demo.dto.driver.UpdateDriverRequest;
+import com.example.demo.dto.driver.*;
+import com.example.demo.enums.JobStatus;
 import com.example.demo.service.DriverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,6 +13,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/drivers")
@@ -65,27 +66,51 @@ public class DriverController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Get driver's jobs",
+            description = "Returns cultivation jobs assigned to a driver"
+    )
+    @GetMapping("/{driverId}/jobs")
+    public ResponseEntity<Page<DriverJobResponse>> getDriverJobs(
+            @PathVariable Long driverId,
 
-//    TODO: to be implemented later with JobController
-//    @GetMapping("/{driverId}/jobs")
-//    public ResponseEntity<?> getDriverJobs(
-//            @PathVariable Long driverId,
-//            Pageable pageable) {
-//
-//        return ResponseEntity.ok(
-//                driverService.getDriverJobs(
-//                        driverId,
-//                        pageable
-//                )
-//        );
-//    }
-//
-//    @GetMapping("/{driverId}/summary")
-//    public ResponseEntity<?> getDriverSummary(
-//            @PathVariable Long driverId) {
-//
-//        return ResponseEntity.ok(
-//                driverService.getDriverSummary(driverId)
-//        );
-//    }
+            @RequestParam(required = false)
+            JobStatus status,
+
+            @RequestParam(required = false)
+            LocalDate fromDate,
+
+            @RequestParam(required = false)
+            LocalDate toDate,
+
+            @PageableDefault(
+                    size = 20,
+                    sort = "jobDate"
+            )
+            Pageable pageable) {
+
+        return ResponseEntity.ok(
+                driverService.getDriverJobs(
+                        driverId,
+                        status,
+                        fromDate,
+                        toDate,
+                        pageable
+                )
+        );
+    }
+
+    @Operation(
+            summary = "Get driver summary",
+            description = "Returns job and cultivation amount summary for a driver"
+    )
+    @GetMapping("/{driverId}/summary")
+    public ResponseEntity<DriverSummaryResponse> getDriverSummary(
+            @PathVariable Long driverId) {
+
+        return ResponseEntity.ok(
+                driverService.getDriverSummary(driverId)
+        );
+    }
+
 }

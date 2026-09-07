@@ -67,4 +67,17 @@ public final class CultivationJobSpecification {
                         toDate
                 );
     }
+
+    public static Specification<CultivationJob> forDriver(
+            Long driverId,
+            JobStatus status,
+            LocalDate fromDate,
+            LocalDate toDate) {
+
+        return Specification
+                .where(driverEquals(driverId))
+                .and(statusEquals(status))
+                .and(dateGreaterThanOrEqual(fromDate))
+                .and(dateLessThanOrEqual(toDate));
+    }
 }

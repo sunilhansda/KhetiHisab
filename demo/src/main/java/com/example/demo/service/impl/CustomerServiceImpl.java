@@ -1,9 +1,6 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.dto.customer.CreateCustomerRequest;
-import com.example.demo.dto.customer.CustomerDuesResponse;
-import com.example.demo.dto.customer.CustomerResponse;
-import com.example.demo.dto.customer.UpdateCustomerRequest;
+import com.example.demo.dto.customer.*;
 import com.example.demo.dto.payment.JobBalanceResponse;
 import com.example.demo.dto.payment.PaymentResponse;
 import com.example.demo.entity.CultivationJob;
@@ -14,6 +11,7 @@ import com.example.demo.repository.CultivationJobRepository;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.PaymentAllocationRepository;
 import com.example.demo.repository.PaymentRepository;
+import com.example.demo.repository.projection.CustomerJobDueProjection;
 import com.example.demo.service.CustomerService;
 import com.example.demo.specification.CustomerSpecification;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -126,58 +127,63 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional(readOnly = true)
-    public CustomerDuesResponse getCustomerDues(Long customerId) {
+    public CustomerDuesResponse getCustomerDues(
+            Long customerId) {
 
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() ->
                         new CustomerNotFoundException(customerId));
 
-        List<CultivationJob> jobs =
+        List<CustomerJobDueProjection> projections =
                 cultivationJobRepository
-                        .findByCustomerCustomerId(customerId);
+                        .findCustomerJobDues(customerId);
 
-        List<JobBalanceResponse> jobBalances = jobs.stream()
-                .map(job -> {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalPaidAmount = BigDecimal.ZERO;
 
-                    BigDecimal paidAmount =
-                            paymentAllocationRepository
-                                    .findTotalPaidForJob(
-                                            job.getJobId()
-                                    );
+        List<CustomerJobDueResponse> jobDues =
+                new ArrayList<>();
 
-                    BigDecimal dueAmount =
-                            job.getAmount().subtract(paidAmount);
+        for (CustomerJobDueProjection projection : projections) {
 
-                    return new JobBalanceResponse(
-                            job.getJobId(),
-                            job.getAmount(),
-                            paidAmount,
-                            dueAmount
-                    );
-                })
-                .filter(balance ->
-                        balance.dueAmount()
-                                .compareTo(BigDecimal.ZERO) > 0)
-                .toList();
+            BigDecimal jobAmount =
+                    projection.getJobAmount();
 
-        BigDecimal totalAmount = jobs.stream()
-                .map(CultivationJob::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal paidAmount =
+                    projection.getPaidAmount();
 
-        BigDecimal paidAmount =
-                paymentAllocationRepository
-                        .findTotalPaidForCustomer(customerId);
+            BigDecimal dueAmount =
+                    jobAmount.subtract(paidAmount);
 
-        BigDecimal dueAmount =
-                totalAmount.subtract(paidAmount);
+            totalAmount =
+                    totalAmount.add(jobAmount);
+
+            totalPaidAmount =
+                    totalPaidAmount.add(paidAmount);
+
+            if (dueAmount.compareTo(BigDecimal.ZERO) > 0) {
+
+                jobDues.add(
+                        new CustomerJobDueResponse(
+                                projection.getJobId(),
+                                jobAmount,
+                                paidAmount,
+                                dueAmount
+                        )
+                );
+            }
+        }
+
+        BigDecimal totalDueAmount =
+                totalAmount.subtract(totalPaidAmount);
 
         return new CustomerDuesResponse(
                 customer.getCustomerId(),
                 customer.getName(),
                 totalAmount,
-                paidAmount,
-                dueAmount,
-                jobBalances
+                totalPaidAmount,
+                totalDueAmount,
+                jobDues
         );
     }
 

@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface DriverRepository
         extends JpaRepository<Driver, Long>,
         JpaSpecificationExecutor<Driver> {
+
+    long countByActiveTrue();
 }
