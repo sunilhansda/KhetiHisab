@@ -15,48 +15,24 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/v1/dashboard")
 @RequiredArgsConstructor
-@Tag(
-        name = "Dashboard",
-        description = "Business overview and dashboard APIs"
-)
+@Tag(name = "Dashboard", description = "Business overview and dashboard APIs")
 public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @Operation(
-            summary = "Get dashboard",
+    @Operation(summary = "Get dashboard",
             description = """
                     Returns business summary for the specified period.
                     If no dates are supplied, the dashboard returns
                     lifetime job/payment activity.
                     Current outstanding amount is always calculated
                     across all jobs and payments.
-                    """
-    )
+                    """)
     @GetMapping
-    public ResponseEntity<DashboardResponse> getDashboard(
-
-            @Parameter(
-                    description = "Start date of the reporting period",
-                    example = "2026-09-01"
-            )
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate fromDate,
-
-            @Parameter(
-                    description = "End date of the reporting period",
-                    example = "2026-09-30"
-            )
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate toDate) {
-
-        return ResponseEntity.ok(
-                dashboardService.getDashboard(
-                        fromDate,
-                        toDate
-                )
-        );
+    public ResponseEntity<DashboardResponse> getDashboard(@Parameter(description = "Start date of the reporting period", example = "2026-09-01")
+                                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+                                                          @Parameter(description = "End date of the reporting period", example = "2026-09-30")
+                                                          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+        return ResponseEntity.ok(dashboardService.getDashboard(fromDate, toDate));
     }
 }

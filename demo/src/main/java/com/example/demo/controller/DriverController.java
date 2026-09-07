@@ -66,51 +66,22 @@ public class DriverController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Get driver's jobs",
-            description = "Returns cultivation jobs assigned to a driver"
-    )
+    @Operation(summary = "Get driver's jobs",
+            description = "Returns cultivation jobs assigned to a driver")
     @GetMapping("/{driverId}/jobs")
-    public ResponseEntity<Page<DriverJobResponse>> getDriverJobs(
-            @PathVariable Long driverId,
-
-            @RequestParam(required = false)
-            JobStatus status,
-
-            @RequestParam(required = false)
-            LocalDate fromDate,
-
-            @RequestParam(required = false)
-            LocalDate toDate,
-
-            @PageableDefault(
-                    size = 20,
-                    sort = "jobDate"
-            )
-            Pageable pageable) {
-
-        return ResponseEntity.ok(
-                driverService.getDriverJobs(
-                        driverId,
-                        status,
-                        fromDate,
-                        toDate,
-                        pageable
-                )
-        );
+    public ResponseEntity<Page<DriverJobResponse>> getDriverJobs(@PathVariable Long driverId,
+                                                                 @RequestParam(required = false) JobStatus status,
+                                                                 @RequestParam(required = false) LocalDate fromDate,
+                                                                 @RequestParam(required = false) LocalDate toDate,
+                                                                 @PageableDefault(size = 20, sort = "jobDate") Pageable pageable) {
+        return ResponseEntity.ok(driverService.getDriverJobs(driverId, status, fromDate, toDate, pageable));
     }
 
-    @Operation(
-            summary = "Get driver summary",
-            description = "Returns job and cultivation amount summary for a driver"
-    )
+    @Operation(summary = "Get driver summary",
+            description = "Returns job and cultivation amount summary for a driver")
     @GetMapping("/{driverId}/summary")
-    public ResponseEntity<DriverSummaryResponse> getDriverSummary(
-            @PathVariable Long driverId) {
-
-        return ResponseEntity.ok(
-                driverService.getDriverSummary(driverId)
-        );
+    public ResponseEntity<DriverSummaryResponse> getDriverSummary(@PathVariable Long driverId) {
+        return ResponseEntity.ok(driverService.getDriverSummary(driverId));
     }
 
 }
